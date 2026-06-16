@@ -1,0 +1,31 @@
+{
+  "name": "react-native-expo-animated-toast",
+  "version": "1.0.0",
+  "description": "A beautiful, animated toast message component for React Native and Expo.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "toast",
+    "animated-toast"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "@expo/vector-icons": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.72.0",
+    "typescript": "^5.0.0"
+  }
+}
