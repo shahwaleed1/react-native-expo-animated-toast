@@ -45,6 +45,9 @@ exports.Toast = {
     success: (message, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.success(message, duration); },
     delete: (message, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.delete(message, duration); },
     share: (message, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.share(message, duration); },
+    error: (message, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.error(message, duration); },
+    warning: (message, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.warning(message, duration); },
+    info: (message, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.info(message, duration); },
     show: (message, icon, duration) => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.show(message, icon, duration); },
     hide: () => { var _a; return (_a = exports.toastRef.current) === null || _a === void 0 ? void 0 : _a.hide(); },
 };
@@ -67,6 +70,9 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
         success: (msg, dur) => show(msg, 'checkmark-circle', dur),
         delete: (msg, dur) => show(msg, 'trash-outline', dur),
         share: (msg, dur) => show(msg, 'share-social', dur),
+        error: (msg, dur) => show(msg, 'close-circle', dur),
+        warning: (msg, dur) => show(msg, 'warning-outline', dur),
+        info: (msg, dur) => show(msg, 'information-circle', dur),
         show: (msg, icn, dur) => show(msg, icn, dur),
         hide: () => setVisible(false),
     }));
@@ -75,6 +81,9 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
         success: (msg, dur) => show(msg, 'checkmark-circle', dur),
         delete: (msg, dur) => show(msg, 'trash-outline', dur),
         share: (msg, dur) => show(msg, 'share-social', dur),
+        error: (msg, dur) => show(msg, 'close-circle', dur),
+        warning: (msg, dur) => show(msg, 'warning-outline', dur),
+        info: (msg, dur) => show(msg, 'information-circle', dur),
         show: (msg, icn, dur) => show(msg, icn, dur),
         hide: () => setVisible(false),
     }));
@@ -122,10 +131,15 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
     const getIconColor = () => {
         switch (icon) {
             case 'trash-outline':
+            case 'close-circle':
                 return '#FF3B30';
             case 'checkmark-circle':
                 return '#34C759';
             case 'share-social':
+                return '#007AFF';
+            case 'warning-outline':
+                return '#FF9F0A';
+            case 'information-circle':
                 return '#007AFF';
             default:
                 return '#fff';

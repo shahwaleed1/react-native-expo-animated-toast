@@ -1,3 +1,6 @@
 node_modules/
 
+# Ignore the package file
+react-native-expo-animated-toast-1.0.0.tgz
+
 

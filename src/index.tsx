@@ -17,6 +17,9 @@ export interface ToastMethods {
   success: (message: string, duration?: number) => void;
   delete: (message: string, duration?: number) => void;
   share: (message: string, duration?: number) => void;
+  error: (message: string, duration?: number) => void;
+  warning: (message: string, duration?: number) => void;
+  info: (message: string, duration?: number) => void;
   show: (message: string, icon: keyof typeof Ionicons.glyphMap, duration?: number) => void;
   hide: () => void;
 }
@@ -27,6 +30,9 @@ export const Toast = {
   success: (message: string, duration?: number) => toastRef.current?.success(message, duration),
   delete: (message: string, duration?: number) => toastRef.current?.delete(message, duration),
   share: (message: string, duration?: number) => toastRef.current?.share(message, duration),
+  error: (message: string, duration?: number) => toastRef.current?.error(message, duration),
+  warning: (message: string, duration?: number) => toastRef.current?.warning(message, duration),
+  info: (message: string, duration?: number) => toastRef.current?.info(message, duration),
   show: (message: string, icon: keyof typeof Ionicons.glyphMap, duration?: number) => toastRef.current?.show(message, icon, duration),
   hide: () => toastRef.current?.hide(),
 };
@@ -38,7 +44,7 @@ export interface ToastProps {
 
 export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top' }, ref) => {
   const insets = useSafeAreaInsets();
-  
+
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [icon, setIcon] = useState<keyof typeof Ionicons.glyphMap>('checkmark-circle');
@@ -59,6 +65,9 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
     success: (msg, dur) => show(msg, 'checkmark-circle', dur),
     delete: (msg, dur) => show(msg, 'trash-outline', dur),
     share: (msg, dur) => show(msg, 'share-social', dur),
+    error: (msg, dur) => show(msg, 'close-circle', dur),
+    warning: (msg, dur) => show(msg, 'warning-outline', dur),
+    info: (msg, dur) => show(msg, 'information-circle', dur),
     show: (msg, icn, dur) => show(msg, icn, dur),
     hide: () => setVisible(false),
   }));
@@ -68,6 +77,9 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
     success: (msg, dur) => show(msg, 'checkmark-circle', dur),
     delete: (msg, dur) => show(msg, 'trash-outline', dur),
     share: (msg, dur) => show(msg, 'share-social', dur),
+    error: (msg, dur) => show(msg, 'close-circle', dur),
+    warning: (msg, dur) => show(msg, 'warning-outline', dur),
+    info: (msg, dur) => show(msg, 'information-circle', dur),
     show: (msg, icn, dur) => show(msg, icn, dur),
     hide: () => setVisible(false),
   }));
@@ -123,10 +135,15 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
   const getIconColor = () => {
     switch (icon) {
       case 'trash-outline':
+      case 'close-circle':
         return '#FF3B30';
       case 'checkmark-circle':
         return '#34C759';
       case 'share-social':
+        return '#007AFF';
+      case 'warning-outline':
+        return '#FF9F0A';
+      case 'information-circle':
         return '#007AFF';
       default:
         return '#fff';
