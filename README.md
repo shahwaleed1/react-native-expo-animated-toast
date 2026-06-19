@@ -6,7 +6,7 @@ A beautiful, animated toast message component for React Native and Expo. It uses
 
 - 🚀 Smooth animations powered by `react-native-reanimated`
 - 📱 Safe area support out of the box via `react-native-safe-area-context`
-- 🎨 Pre-defined toast types (success, delete, share)
+- 🎨 Pre-defined toast types (success, error, warning, info, delete, share)
 - ⚙️ Custom toasts with any Ionicons icon
 - 📍 Position customization (top, bottom, center)
 - 🧩 Easy to use global API (call `Toast.success` from anywhere)
@@ -72,6 +72,9 @@ import { Toast } from 'react-native-expo-animated-toast';
 
 // Predefined toasts
 Toast.success('Profile updated!');
+Toast.error('Failed to save changes.');
+Toast.warning('Your storage is almost full.');
+Toast.info('New update available.');
 Toast.delete('Item removed from cart.');
 Toast.share('Link copied to clipboard!');
 
@@ -97,6 +100,9 @@ All methods take an optional `duration` parameter in milliseconds (defaults to `
 | Method | Parameters | Description |
 | :--- | :--- | :--- |
 | `Toast.success(message, duration?)` | `message: string`, `duration?: number` | Shows a success toast with a green checkmark icon. |
+| `Toast.error(message, duration?)` | `message: string`, `duration?: number` | Shows an error toast with a red close icon. |
+| `Toast.warning(message, duration?)` | `message: string`, `duration?: number` | Shows a warning toast with an orange warning icon. |
+| `Toast.info(message, duration?)` | `message: string`, `duration?: number` | Shows an info toast with a blue information icon. |
 | `Toast.delete(message, duration?)` | `message: string`, `duration?: number` | Shows a destructive toast with a red trash icon. |
 | `Toast.share(message, duration?)` | `message: string`, `duration?: number` | Shows a share toast with a blue share icon. |
 | `Toast.show(message, icon, duration?)` | `message: string`, `icon: keyof typeof Ionicons.glyphMap`, `duration?: number` | Shows a custom toast with the specified message and [Ionicons](https://icons.expo.fyi/Index) icon. |
