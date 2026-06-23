@@ -54,18 +54,23 @@ exports.Toast = {
 exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
     const insets = (0, react_native_safe_area_context_1.useSafeAreaInsets)();
     const [visible, setVisible] = (0, react_1.useState)(false);
-    const [message, setMessage] = (0, react_1.useState)('');
-    const [icon, setIcon] = (0, react_1.useState)('checkmark-circle');
-    const [duration, setDuration] = (0, react_1.useState)(3000);
+    const [queue, setQueue] = (0, react_1.useState)([]);
+    const [currentToast, setCurrentToast] = (0, react_1.useState)(null);
+    const isAnimatingOut = react_1.default.useRef(false);
     const opacity = (0, react_native_reanimated_1.useSharedValue)(0);
     const translateY = (0, react_native_reanimated_1.useSharedValue)(position === 'top' ? -50 : position === 'bottom' ? 50 : 0);
     const scale = (0, react_native_reanimated_1.useSharedValue)(0.9);
     const show = (msg, icn, dur = 3000) => {
-        setMessage(msg);
-        setIcon(icn);
-        setDuration(dur);
-        setVisible(true);
+        const newItem = { id: Math.random().toString(), message: msg, icon: icn, duration: dur };
+        setQueue((prev) => [...prev, newItem]);
     };
+    (0, react_1.useEffect)(() => {
+        if (!visible && queue.length > 0 && !isAnimatingOut.current) {
+            setCurrentToast(queue[0]);
+            setQueue((prev) => prev.slice(1));
+            setVisible(true);
+        }
+    }, [visible, queue, currentToast]);
     (0, react_1.useImperativeHandle)(ref, () => ({
         success: (msg, dur) => show(msg, 'checkmark-circle', dur),
         delete: (msg, dur) => show(msg, 'trash-outline', dur),
@@ -88,7 +93,7 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
         hide: () => setVisible(false),
     }));
     (0, react_1.useEffect)(() => {
-        if (visible) {
+        if (visible && currentToast) {
             // Animate In
             opacity.value = (0, react_native_reanimated_1.withTiming)(1, { duration: 300 });
             scale.value = (0, react_native_reanimated_1.withSpring)(1, { damping: 15, stiffness: 200 });
@@ -96,16 +101,22 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
             // Auto Hide
             const timer = setTimeout(() => {
                 setVisible(false);
-            }, duration);
+            }, currentToast.duration);
             return () => clearTimeout(timer);
         }
         else {
             // Animate Out
+            isAnimatingOut.current = true;
             opacity.value = (0, react_native_reanimated_1.withTiming)(0, { duration: 250 });
             scale.value = (0, react_native_reanimated_1.withTiming)(0.9, { duration: 250 });
             translateY.value = (0, react_native_reanimated_1.withTiming)(position === 'top' ? -50 : position === 'bottom' ? 50 : 0, { duration: 250 });
+            const timer = setTimeout(() => {
+                isAnimatingOut.current = false;
+                setCurrentToast(null);
+            }, 300);
+            return () => clearTimeout(timer);
         }
-    }, [visible, duration, position]);
+    }, [visible, currentToast, position]);
     const animatedStyle = (0, react_native_reanimated_1.useAnimatedStyle)(() => {
         return {
             opacity: opacity.value,
@@ -115,7 +126,7 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
             ],
         };
     });
-    if (!visible && opacity.value === 0)
+    if (!visible && opacity.value === 0 && !currentToast)
         return null;
     const getPositionStyle = () => {
         switch (position) {
@@ -129,7 +140,7 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
         }
     };
     const getIconColor = () => {
-        switch (icon) {
+        switch (currentToast === null || currentToast === void 0 ? void 0 : currentToast.icon) {
             case 'trash-outline':
             case 'close-circle':
                 return '#FF3B30';
@@ -147,8 +158,8 @@ exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
     };
     return (react_1.default.createElement(react_native_1.View, { style: [styles.container, getPositionStyle()], pointerEvents: "none" },
         react_1.default.createElement(react_native_reanimated_1.default.View, { style: [styles.toast, animatedStyle] },
-            react_1.default.createElement(vector_icons_1.Ionicons, { name: icon, size: 20, color: getIconColor(), style: styles.icon }),
-            react_1.default.createElement(react_native_1.Text, { style: styles.message }, message))));
+            react_1.default.createElement(vector_icons_1.Ionicons, { name: (currentToast === null || currentToast === void 0 ? void 0 : currentToast.icon) || 'checkmark-circle', size: 20, color: getIconColor(), style: styles.icon }),
+            react_1.default.createElement(react_native_1.Text, { style: styles.message }, currentToast === null || currentToast === void 0 ? void 0 : currentToast.message))));
 });
 const styles = react_native_1.StyleSheet.create({
     container: {

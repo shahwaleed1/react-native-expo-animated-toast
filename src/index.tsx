@@ -42,24 +42,37 @@ export interface ToastProps {
   position?: ToastPosition;
 }
 
+type ToastItem = {
+  id: string;
+  message: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  duration: number;
+};
+
 export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top' }, ref) => {
   const insets = useSafeAreaInsets();
 
   const [visible, setVisible] = useState(false);
-  const [message, setMessage] = useState('');
-  const [icon, setIcon] = useState<keyof typeof Ionicons.glyphMap>('checkmark-circle');
-  const [duration, setDuration] = useState(3000);
+  const [queue, setQueue] = useState<ToastItem[]>([]);
+  const [currentToast, setCurrentToast] = useState<ToastItem | null>(null);
+  const isAnimatingOut = React.useRef(false);
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(position === 'top' ? -50 : position === 'bottom' ? 50 : 0);
   const scale = useSharedValue(0.9);
 
   const show = (msg: string, icn: keyof typeof Ionicons.glyphMap, dur: number = 3000) => {
-    setMessage(msg);
-    setIcon(icn);
-    setDuration(dur);
-    setVisible(true);
+    const newItem: ToastItem = { id: Math.random().toString(), message: msg, icon: icn, duration: dur };
+    setQueue((prev) => [...prev, newItem]);
   };
+
+  useEffect(() => {
+    if (!visible && queue.length > 0 && !isAnimatingOut.current) {
+      setCurrentToast(queue[0]);
+      setQueue((prev) => prev.slice(1));
+      setVisible(true);
+    }
+  }, [visible, queue, currentToast]);
 
   useImperativeHandle(ref, () => ({
     success: (msg, dur) => show(msg, 'checkmark-circle', dur),
@@ -85,7 +98,7 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
   }));
 
   useEffect(() => {
-    if (visible) {
+    if (visible && currentToast) {
       // Animate In
       opacity.value = withTiming(1, { duration: 300 });
       scale.value = withSpring(1, { damping: 15, stiffness: 200 });
@@ -94,19 +107,27 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
       // Auto Hide
       const timer = setTimeout(() => {
         setVisible(false);
-      }, duration);
+      }, currentToast.duration);
 
       return () => clearTimeout(timer);
     } else {
       // Animate Out
+      isAnimatingOut.current = true;
       opacity.value = withTiming(0, { duration: 250 });
       scale.value = withTiming(0.9, { duration: 250 });
       translateY.value = withTiming(
         position === 'top' ? -50 : position === 'bottom' ? 50 : 0,
         { duration: 250 }
       );
+
+      const timer = setTimeout(() => {
+        isAnimatingOut.current = false;
+        setCurrentToast(null);
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
-  }, [visible, duration, position]);
+  }, [visible, currentToast, position]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -118,7 +139,7 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
     };
   });
 
-  if (!visible && opacity.value === 0) return null;
+  if (!visible && opacity.value === 0 && !currentToast) return null;
 
   const getPositionStyle = () => {
     switch (position) {
@@ -133,7 +154,7 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
   };
 
   const getIconColor = () => {
-    switch (icon) {
+    switch (currentToast?.icon) {
       case 'trash-outline':
       case 'close-circle':
         return '#FF3B30';
@@ -153,8 +174,8 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
   return (
     <View style={[styles.container, getPositionStyle()]} pointerEvents="none">
       <Animated.View style={[styles.toast, animatedStyle]}>
-        <Ionicons name={icon} size={20} color={getIconColor()} style={styles.icon} />
-        <Text style={styles.message}>{message}</Text>
+        <Ionicons name={currentToast?.icon || 'checkmark-circle'} size={20} color={getIconColor()} style={styles.icon} />
+        <Text style={styles.message}>{currentToast?.message}</Text>
       </Animated.View>
     </View>
   );
