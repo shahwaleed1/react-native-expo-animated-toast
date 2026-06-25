@@ -1,4 +1,6 @@
 node_modules/
+package-lock.json
+
 
 # Ignore the package file
 react-native-expo-animated-toast-1.0.0.tgz

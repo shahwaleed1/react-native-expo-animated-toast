@@ -12,16 +12,25 @@
     "react-native",
     "expo",
     "toast",
-    "animated-toast"
+    "animated-toast",
+    "animated",
+    "flash-message",
+    "toast-notification",
+    "snackbar"
   ],
-  "author": "",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "Waleed Shah",
   "license": "MIT",
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*",
-    "react-native-reanimated": "*",
-    "react-native-safe-area-context": "*",
-    "@expo/vector-icons": "*"
+    "react": ">=18",
+    "react-native": ">=0.73",
+    "react-native-reanimated": ">=4.1.0 <5",
+    "react-native-safe-area-context": ">=5",
+    "@expo/vector-icons": ">=15"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

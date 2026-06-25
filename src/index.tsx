@@ -42,71 +42,55 @@ export interface ToastProps {
   position?: ToastPosition;
 }
 
-export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top' }, ref) => {
-  const insets = useSafeAreaInsets();
+type ToastItem = {
+  id: string;
+  message: string;
+  icon?: keyof typeof Ionicons.glyphMap;
+  duration: number;
+};
 
-  const [visible, setVisible] = useState(false);
-  const [message, setMessage] = useState('');
-  const [icon, setIcon] = useState<keyof typeof Ionicons.glyphMap>('checkmark-circle');
-  const [duration, setDuration] = useState(3000);
-
+const AnimatedToastItem = ({
+  item,
+  index,
+  position,
+  onRemove,
+}: {
+  item: ToastItem;
+  index: number;
+  position: ToastPosition;
+  onRemove: (id: string) => void;
+}) => {
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(position === 'top' ? -50 : position === 'bottom' ? 50 : 0);
   const scale = useSharedValue(0.9);
-
-  const show = (msg: string, icn: keyof typeof Ionicons.glyphMap, dur: number = 3000) => {
-    setMessage(msg);
-    setIcon(icn);
-    setDuration(dur);
-    setVisible(true);
-  };
-
-  useImperativeHandle(ref, () => ({
-    success: (msg, dur) => show(msg, 'checkmark-circle', dur),
-    delete: (msg, dur) => show(msg, 'trash-outline', dur),
-    share: (msg, dur) => show(msg, 'share-social', dur),
-    error: (msg, dur) => show(msg, 'close-circle', dur),
-    warning: (msg, dur) => show(msg, 'warning-outline', dur),
-    info: (msg, dur) => show(msg, 'information-circle', dur),
-    show: (msg, icn, dur) => show(msg, icn, dur),
-    hide: () => setVisible(false),
-  }));
-
-  // Also bind to the global ref so we can call Toast.success() from anywhere
-  useImperativeHandle(toastRef, () => ({
-    success: (msg, dur) => show(msg, 'checkmark-circle', dur),
-    delete: (msg, dur) => show(msg, 'trash-outline', dur),
-    share: (msg, dur) => show(msg, 'share-social', dur),
-    error: (msg, dur) => show(msg, 'close-circle', dur),
-    warning: (msg, dur) => show(msg, 'warning-outline', dur),
-    info: (msg, dur) => show(msg, 'information-circle', dur),
-    show: (msg, icn, dur) => show(msg, icn, dur),
-    hide: () => setVisible(false),
-  }));
+  const translateY = useSharedValue(position === 'top' ? -50 : position === 'bottom' ? 50 : 0);
 
   useEffect(() => {
-    if (visible) {
-      // Animate In
-      opacity.value = withTiming(1, { duration: 300 });
-      scale.value = withSpring(1, { damping: 15, stiffness: 200 });
-      translateY.value = withSpring(0, { damping: 15, stiffness: 200 });
+    opacity.value = withTiming(1 - index * 0.15, { duration: 300 });
+    scale.value = withSpring(1 - index * 0.05, { damping: 15, stiffness: 200 });
+    const dir = position === 'top' ? 1 : position === 'bottom' ? -1 : 1;
+    translateY.value = withSpring(dir * index * 12, { damping: 15, stiffness: 200 });
+  }, [index, position]);
 
-      // Auto Hide
-      const timer = setTimeout(() => {
-        setVisible(false);
-      }, duration);
-
-      return () => clearTimeout(timer);
-    } else {
-      // Animate Out
+  useEffect(() => {
+    let isMounted = true;
+    const timer = setTimeout(() => {
+      if (!isMounted) return;
       opacity.value = withTiming(0, { duration: 250 });
       scale.value = withTiming(0.9, { duration: 250 });
       translateY.value = withTiming(
         position === 'top' ? -50 : position === 'bottom' ? 50 : 0,
         { duration: 250 }
       );
-    }
-  }, [visible, duration, position]);
+      setTimeout(() => {
+        if (isMounted) onRemove(item.id);
+      }, 300);
+    }, item.duration);
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -118,22 +102,8 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
     };
   });
 
-  if (!visible && opacity.value === 0) return null;
-
-  const getPositionStyle = () => {
-    switch (position) {
-      case 'top':
-        return { top: Math.max(insets.top, 20) + 10 };
-      case 'center':
-        return { top: height / 2 - 25 };
-      case 'bottom':
-      default:
-        return { bottom: Math.max(insets.bottom, 20) + 20 };
-    }
-  };
-
   const getIconColor = () => {
-    switch (icon) {
+    switch (item?.icon) {
       case 'trash-outline':
       case 'close-circle':
         return '#FF3B30';
@@ -151,11 +121,65 @@ export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top'
   };
 
   return (
+    <Animated.View style={[styles.toast, animatedStyle, { position: 'absolute', zIndex: 9999 - index }]}>
+      <Ionicons name={item?.icon || 'checkmark-circle'} size={20} color={getIconColor()} style={styles.icon} />
+      <Text style={styles.message}>{item.message}</Text>
+    </Animated.View>
+  );
+};
+
+export const ToastMsg = forwardRef<ToastMethods, ToastProps>(({ position = 'top' }, ref) => {
+  const insets = useSafeAreaInsets();
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const show = (msg: string, icn: keyof typeof Ionicons.glyphMap, dur: number = 3000) => {
+    const newItem: ToastItem = { id: Math.random().toString(), message: msg, icon: icn, duration: dur };
+    setToasts((prev) => [newItem, ...prev].slice(0, 4)); // max 4 toasts
+  };
+
+  const removeToast = React.useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const methods = {
+    success: (msg: string, dur?: number) => show(msg, 'checkmark-circle', dur),
+    delete: (msg: string, dur?: number) => show(msg, 'trash-outline', dur),
+    share: (msg: string, dur?: number) => show(msg, 'share-social', dur),
+    error: (msg: string, dur?: number) => show(msg, 'close-circle', dur),
+    warning: (msg: string, dur?: number) => show(msg, 'warning-outline', dur),
+    info: (msg: string, dur?: number) => show(msg, 'information-circle', dur),
+    show: (msg: string, icn: keyof typeof Ionicons.glyphMap, dur?: number) => show(msg, icn, dur),
+    hide: () => setToasts([]),
+  };
+
+  useImperativeHandle(ref, () => methods);
+  useImperativeHandle(toastRef, () => methods);
+
+  const getPositionStyle = () => {
+    switch (position) {
+      case 'top':
+        return { top: Math.max(insets.top, 20) + 10 };
+      case 'center':
+        return { top: height / 2 - 25 };
+      case 'bottom':
+      default:
+        return { bottom: Math.max(insets.bottom, 20) + 20 };
+    }
+  };
+
+  if (toasts.length === 0) return null;
+
+  return (
     <View style={[styles.container, getPositionStyle()]} pointerEvents="none">
-      <Animated.View style={[styles.toast, animatedStyle]}>
-        <Ionicons name={icon} size={20} color={getIconColor()} style={styles.icon} />
-        <Text style={styles.message}>{message}</Text>
-      </Animated.View>
+      {toasts.map((toast, index) => (
+        <AnimatedToastItem
+          key={toast.id}
+          item={toast}
+          index={index}
+          position={position}
+          onRemove={removeToast}
+        />
+      ))}
     </View>
   );
 });

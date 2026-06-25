@@ -5,6 +5,7 @@ A beautiful, animated toast message component for React Native and Expo. It uses
 ## Features
 
 - 🚀 Smooth animations powered by `react-native-reanimated`
+- 🥞 **Stacked Toasts**: Multiple toasts elegantly stack and animate when called simultaneously!
 - 📱 Safe area support out of the box via `react-native-safe-area-context`
 - 🎨 Pre-defined toast types (success, error, warning, info, delete, share)
 - ⚙️ Custom toasts with any Ionicons icon
