@@ -89,7 +89,7 @@ const AnimatedToastItem = ({ item, index, position, onRemove, }) => {
         };
     });
     const getIconColor = () => {
-        switch (item.icon) {
+        switch (item === null || item === void 0 ? void 0 : item.icon) {
             case 'trash-outline':
             case 'close-circle':
                 return '#FF3B30';
@@ -106,7 +106,7 @@ const AnimatedToastItem = ({ item, index, position, onRemove, }) => {
         }
     };
     return (react_1.default.createElement(react_native_reanimated_1.default.View, { style: [styles.toast, animatedStyle, { position: 'absolute', zIndex: 9999 - index }] },
-        react_1.default.createElement(vector_icons_1.Ionicons, { name: item.icon || 'checkmark-circle', size: 20, color: getIconColor(), style: styles.icon }),
+        react_1.default.createElement(vector_icons_1.Ionicons, { name: (item === null || item === void 0 ? void 0 : item.icon) || 'checkmark-circle', size: 20, color: getIconColor(), style: styles.icon }),
         react_1.default.createElement(react_native_1.Text, { style: styles.message }, item.message)));
 };
 exports.ToastMsg = (0, react_1.forwardRef)(({ position = 'top' }, ref) => {
