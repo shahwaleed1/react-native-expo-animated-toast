@@ -12,9 +12,18 @@
     "react-native",
     "expo",
     "toast",
-    "animated-toast"
+    "animated-toast",
+    "animated",
+    "flash-message",
+    "toast-notification",
+    "snackbar"
   ],
-  "author": "",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "Waleed Shah",
   "license": "MIT",
   "peerDependencies": {
     "react": ">=18",
