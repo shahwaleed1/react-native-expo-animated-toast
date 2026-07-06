@@ -2,6 +2,8 @@
 
 A beautiful, animated toast message component for React Native and Expo. It uses `react-native-reanimated` for smooth animations and `@expo/vector-icons` for beautiful iconography.
 
+<video src="https://github.com/shahwaleed1/toastMsg-npm-package/raw/main/simple.mp4" width="250" controls></video>
+
 ## Features
 
 - 🚀 Smooth animations powered by `react-native-reanimated`
