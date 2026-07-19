@@ -28,7 +28,7 @@
   "homepage": "https://rnea-toast.vercel.app/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shahwaleed1/react-native-expo-animated-toast.git"
+    "url": "git+https://github.com/shahwaleed1/react-native-expo-animated-toast.git"
   },
   "bugs": {
     "url": "https://github.com/shahwaleed1/react-native-expo-animated-toast/issues"
