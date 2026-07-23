@@ -1,6 +1,6 @@
 {
   "name": "react-native-expo-animated-toast",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A beautiful, animated toast message component for React Native and Expo.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,6 +25,14 @@
   ],
   "author": "Waleed Shah",
   "license": "MIT",
+  "homepage": "https://rnea-toast.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shahwaleed1/react-native-expo-animated-toast.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shahwaleed1/react-native-expo-animated-toast/issues"
+  },
   "peerDependencies": {
     "react": ">=18",
     "react-native": ">=0.73",
